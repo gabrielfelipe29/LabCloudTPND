@@ -1,17 +1,352 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="styles.css">
-  <title>Vanilla JavaScript App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Noticias</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            display: block;
+            width: 200px;
+            margin: 0 auto 30px;
+            padding: 15px 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .news-item {
+            border: 1px solid #eee;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            background: #f9f9f9;
+        }
+        
+        .news-title {
+            color: #333;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .news-title a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .news-title a:hover {
+            text-decoration: underline;
+        }
+        
+        .news-description {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        
+        .news-meta {
+            color: #999;
+            font-size: 14px;
+        }
+        
+        .error {
+            background: #ffe6e6;
+            border: 1px solid #ff9999;
+            color: #cc0000;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .success {
+            background: #e6ffe6;
+            border: 1px solid #99ff99;
+            color: #006600;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .proxy-info {
+            background: #e6f3ff;
+            border: 1px solid #b3d9ff;
+            color: #0066cc;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
 </head>
-
 <body>
-  <main>
-    <h1>Vanilla JavaScript App</h1>
-  </main>
-</body>
+    <div class="container">
+        <h1>📰 Portal de Noticias Tecnológicas</h1>
+        
+        <div class="proxy-info">
+            <strong>💡 Nota:</strong> Esta versión usa un proxy local para evitar errores de CORS
+        </div>
+        
+        <!-- Selector de modo -->
+        <div style="text-align: center; margin-bottom: 20px;">
+            <label style="margin-right: 10px; font-weight: bold;">Modo:</label>
+            <select id="modeSelect" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+                <option value="direct">Directo a NewsAPI (con proxy)</option>
+                <option value="function">A través de GetNews (Azure Function)</option>
+            </select>
+        </div>
+        
+        <!-- Selector de categoría -->
+        <div style="text-align: center; margin-bottom: 20px;">
+            <label for="categorySelect" style="margin-right: 10px; font-weight: bold;">Categoría:</label>
+            <select id="categorySelect" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+                <option value="technology">Tecnología</option>
+                <option value="business">Negocios</option>
+                <option value="science">Ciencia</option>
+                <option value="health">Salud</option>
+                <option value="sports">Deportes</option>
+                <option value="entertainment">Entretenimiento</option>
+                <option value="general">General</option>
+            </select>
+            
+            <label for="countrySelect" style="margin-left: 20px; margin-right: 10px; font-weight: bold;">País:</label>
+            <select id="countrySelect" style="padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
+                <option value="us">Estados Unidos</option>
+                <option value="es">España</option>
+                <option value="mx">México</option>
+                <option value="ar">Argentina</option>
+                <option value="co">Colombia</option>
+                <option value="gb">Reino Unido</option>
+            </select>
+        </div>
+        
+        <button id="loadBtn" class="btn">🚀 Cargar Noticias</button>
+        
+        <div id="loading" class="loading">
+            Cargando noticias...
+        </div>
+        
+        <div id="message"></div>
+        <div id="newsContainer"></div>
+    </div>
 
+    <script>
+        const loadBtn = document.getElementById('loadBtn');
+        const loading = document.getElementById('loading');
+        const message = document.getElementById('message');
+        const newsContainer = document.getElementById('newsContainer');
+        
+        // Tu API key de NewsAPI
+        const API_KEY = '59a8c9facd874199b6369f8d4173e79f';
+        
+        // URL del proxy CORS local
+        const PROXY_URL = 'http://localhost:8001/proxy';
+        
+        loadBtn.addEventListener('click', loadNews);
+        
+        async function loadNews() {
+            try {
+                // Mostrar loading
+                loadBtn.disabled = true;
+                loading.style.display = 'block';
+                message.innerHTML = '';
+                newsContainer.innerHTML = '';
+                
+                // Obtener valores seleccionados
+                const mode = document.getElementById('modeSelect').value;
+                const category = document.getElementById('categorySelect').value;
+                const country = document.getElementById('countrySelect').value;
+                
+                let data;
+                
+                if (mode === 'direct') {
+                    // Modo directo: llamar a NewsAPI a través del proxy
+                    data = await loadNewsDirect(category, country);
+                } else {
+                    // Modo función: llamar a GetNews
+                    data = await loadNewsFunction(category, country);
+                }
+                
+                if (data.success) {
+                    if (data.articles && data.articles.length > 0) {
+                        // Mostrar mensaje de éxito
+                        const modeText = mode === 'direct' ? 'directamente desde NewsAPI' : 'a través de GetNews';
+                        message.innerHTML = `<div class="success">✅ Se cargaron ${data.articles.length} noticias de ${category} en ${country} (${modeText})</div>`;
+                        
+                        // Mostrar noticias
+                        displayNews(data.articles);
+                    } else {
+                        // No hay noticias pero la API funciona
+                        message.innerHTML = `<div class="error">⚠️ No se encontraron noticias de ${category} en ${country}. Intenta con otra categoría o país.</div>`;
+                        newsContainer.innerHTML = `
+                            <div style="text-align: center; padding: 20px; color: #666;">
+                                <p>No hay noticias disponibles para esta combinación.</p>
+                                <p>Prueba cambiando la categoría o el país.</p>
+                                <p><strong>Total de resultados:</strong> ${data.totalResults || 0}</p>
+                            </div>
+                        `;
+                    }
+                } else {
+                    throw new Error(data.error || 'Error en la respuesta');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                
+                // Mensaje de error más específico
+                let errorMessage = error.message;
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Error de conexión. Verifica que el proxy o la función estén disponibles.';
+                }
+                
+                message.innerHTML = `<div class="error">❌ Error: ${errorMessage}</div>`;
+            } finally {
+                // Ocultar loading
+                loadBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+        
+        // Función para cargar noticias directamente desde NewsAPI
+        async function loadNewsDirect(category, country) {
+            const newsApiUrl = `https://newsapi.org/v2/top-headlines?country=${country}&category=${category}&apiKey=${API_KEY}`;
+            const proxyUrl = `${PROXY_URL}/${encodeURIComponent(newsApiUrl)}`;
+            
+            console.log('🌐 Llamando a NewsAPI a través del proxy:', proxyUrl);
+            
+            const response = await fetch(proxyUrl);
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log('📰 Respuesta directa de NewsAPI:', data);
+            
+            // Convertir respuesta de NewsAPI al formato estándar
+            return {
+                success: data.status === 'ok',
+                articles: data.articles || [],
+                totalResults: data.totalResults || 0,
+                country: country,
+                category: category
+            };
+        }
+        
+        // Función para cargar noticias a través de GetNews
+        async function loadNewsFunction(category, country) {
+            // URL de la función GetNews (cuando esté desplegada en Azure)
+            const functionUrl = `http://localhost:7071/api/getnews?country=${country}&category=${category}`;
+            
+            console.log('⚡ Llamando a GetNews function:', functionUrl);
+            
+            const response = await fetch(functionUrl);
+            
+            if (!response.ok) {
+                throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+            }
+            
+            const data = await response.json();
+            console.log('📰 Respuesta de GetNews function:', data);
+            
+            return data;
+        }
+        
+        function displayNews(articles) {
+            const newsHTML = articles.map(article => `
+                <div class="news-item">
+                    <div class="news-title">
+                        <a href="${article.url}" target="_blank">${article.title}</a>
+                    </div>
+                    <div class="news-description">
+                        ${article.description || 'Sin descripción disponible'}
+                    </div>
+                    <div class="news-meta">
+                        📰 ${article.source?.name || 'Fuente desconocida'} | 
+                        🕒 ${formatDate(article.publishedAt)}
+                    </div>
+                </div>
+            `).join('');
+            
+            newsContainer.innerHTML = newsHTML;
+        }
+        
+        function formatDate(dateString) {
+            if (!dateString) return 'Fecha desconocida';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('es-ES', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+            } catch {
+                return 'Fecha inválida';
+            }
+        }
+        
+        // Verificar si el proxy está disponible
+        async function checkProxy() {
+            try {
+                const response = await fetch('http://localhost:8001');
+                if (response.ok) {
+                    console.log('✅ Proxy CORS está funcionando');
+                }
+            } catch (error) {
+                console.log('❌ Proxy CORS no está disponible. Ejecuta: python cors-proxy.py');
+            }
+        }
+        
+        // Verificar proxy al cargar
+        checkProxy();
+    </script>
+</body>
 </html>
