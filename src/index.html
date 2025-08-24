@@ -258,9 +258,8 @@
             const newsApiUrl = `https://newsapi.org/v2/top-headlines?country=${country}&category=${category}&apiKey=${API_KEY}`;
             const proxyUrl = `${PROXY_URL}/${encodeURIComponent(newsApiUrl)}`;
             
-            console.log('🌐 Llamando a NewsAPI a través del proxy:', proxyUrl);
             
-            const response = await fetch(proxyUrl);
+            const response = await fetch(newsApiUrl);
             
             if (!response.ok) {
                 throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
@@ -282,7 +281,7 @@
         // Función para cargar noticias a través de GetNews
         async function loadNewsFunction(category, country) {
             // URL de la función GetNews (cuando esté desplegada en Azure)
-            const functionUrl = `https://labcloudtpnd-cve3b3c3grg4dcb9.centralindia-01.azurewebsites.net/api/GetNews?code=dUjEXxywdcoYBLJ1ty9mAnP_tcPyfhq7JAuYhVkopSuwAzFuhh-3mg==`;
+            const functionUrl = `https://labcloudtpnd-cve3b3c3grg4dcb9.centralindia-01.azurewebsites.net/api/GetNews?country=${country}&category=${category}&code=dUjEXxywdcoYBLJ1ty9mAnP_tcPyfhq7JAuYhVkopSuwAzFuhh-3mg==`;
             
             console.log('⚡ Llamando a GetNews function:', functionUrl);
             
