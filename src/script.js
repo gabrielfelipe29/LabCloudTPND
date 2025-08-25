@@ -38,7 +38,7 @@ async function loadNews() {
             if (data.articles && data.articles.length > 0) {
                 // Mostrar mensaje de éxito
                 const modeText = mode === 'direct' ? 'directamente desde NewsAPI' : 'a través de GetNews';
-                message.innerHTML = `<div class="success">✅ Se cargaron ${data.articles.length} noticias de ${category} en ${country} (${modeText})</div>`;
+                message.innerHTML = `<div class="success">✅ Se cargaron ${data.articles.length} noticias de ${category} de ${country} </div>`;
 
                 // Mostrar noticias
                 displayNews(data.articles);
