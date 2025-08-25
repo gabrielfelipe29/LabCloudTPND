@@ -122,7 +122,6 @@ async function logAccess() {
 
 // Función para cargar noticias a través de GetNews
 async function loadNewsFunction(category, country) {
-    logAccess();
     const functionUrl = `https://labcloudtpnd-cve3b3c3grg4dcb9.centralindia-01.azurewebsites.net/api/GetNews?&code=dUjEXxywdcoYBLJ1ty9mAnP_tcPyfhq7JAuYhVkopSuwAzFuhh-3mg==`;
     console.log('⚡ Llamando a GetNews function:', functionUrl);
 
@@ -130,6 +129,8 @@ async function loadNewsFunction(category, country) {
 
     if (!response.ok) {
         throw new Error(`Error HTTP: ${response.status} - ${response.statusText}`);
+    } else {
+        logAccess();
     }
 
     const data = await response.json();
