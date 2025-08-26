@@ -24,6 +24,9 @@ async function loadNews() {
         const category = document.getElementById('categorySelect').value;
         const country = document.getElementById('countrySelect').value;
 
+        const categoryText = categorySelect.options[categorySelect.selectedIndex].text;
+        const countryText = countrySelect.options[countrySelect.selectedIndex].text;
+
         let data;
 
         if (mode === 'direct') {
@@ -38,13 +41,13 @@ async function loadNews() {
             if (data.articles && data.articles.length > 0) {
                 // Mostrar mensaje de éxito
                 const modeText = mode === 'direct' ? 'directamente desde NewsAPI' : 'a través de GetNews';
-                message.innerHTML = `<div class="success">✅ Se cargaron ${data.articles.length} noticias de ${categorySelect.options[categorySelect.selectedIndex].text} en ${country.options[country.selectedIndex].text} </div>`;
+                message.innerHTML = `<div class="success">✅ Se cargaron ${data.articles.length} noticias de ${categoryText} en ${countryText} </div>`;
 
                 // Mostrar noticias
                 displayNews(data.articles);
             } else {
                 // No hay noticias pero la API funciona
-                message.innerHTML = `<div class="error">⚠️ No se encontraron noticias de ${category} en ${country}. Intenta con otra categoría o país.</div>`;
+                message.innerHTML = `<div class="error">⚠️ No se encontraron noticias de ${categoryText} en ${countryText}. Intenta con otra categoría o país.</div>`;
                 newsContainer.innerHTML = `
                             <div style="text-align: center; padding: 20px; color: #666;">
                                 <p>No hay noticias disponibles para esta combinación.</p>
