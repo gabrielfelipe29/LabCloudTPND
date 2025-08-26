@@ -38,7 +38,7 @@ async function loadNews() {
             if (data.articles && data.articles.length > 0) {
                 // Mostrar mensaje de éxito
                 const modeText = mode === 'direct' ? 'directamente desde NewsAPI' : 'a través de GetNews';
-                message.innerHTML = `<div class="success">✅ Se cargaron ${data.articles.length} noticias de ${category} en ${country} </div>`;
+                message.innerHTML = `<div class="success">✅ Se cargaron ${data.articles.length} noticias de ${categorySelect.options[categorySelect.selectedIndex].text} en ${country.options[country.selectedIndex].text} </div>`;
 
                 // Mostrar noticias
                 displayNews(data.articles);
