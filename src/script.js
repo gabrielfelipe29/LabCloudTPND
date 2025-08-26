@@ -31,7 +31,7 @@ async function loadNews() {
             data = await loadNewsDirect(category, country);
         } else {
             // Modo función: llamar a GetNews
-            data = await loadNewsFunction(category, country);
+            data = await GetNews(category, country);
         }
 
         if (data.status) {
@@ -121,8 +121,8 @@ async function logAccess() {
 }
 
 // Función para cargar noticias a través de GetNews
-async function loadNewsFunction(category, country) {
-    const functionUrl = `https://labcloudtpnd-cve3b3c3grg4dcb9.centralindia-01.azurewebsites.net/api/GetNews?&code=dUjEXxywdcoYBLJ1ty9mAnP_tcPyfhq7JAuYhVkopSuwAzFuhh-3mg==`;
+async function GetNews(category, country) {
+    const functionUrl = `https://labcloudtpnd-cve3b3c3grg4dcb9.centralindia-01.azurewebsites.net/api/GetNews?country=${country}&category=${category}&code=dUjEXxywdcoYBLJ1ty9mAnP_tcPyfhq7JAuYhVkopSuwAzFuhh-3mg==`;
     console.log('⚡ Llamando a GetNews function:', functionUrl);
 
     const response = await fetch(functionUrl);
